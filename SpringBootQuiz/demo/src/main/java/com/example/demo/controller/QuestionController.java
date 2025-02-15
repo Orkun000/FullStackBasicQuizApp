@@ -12,12 +12,8 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class QuestionController {
 
-    private final QuestionService questionService;
-
     @Autowired
-    public QuestionController(QuestionService questionService) {
-        this.questionService = questionService;
-    }
+    private QuestionService questionService;
 
     @GetMapping
     public List<Question> getAllQuestions() {
