@@ -1,71 +1,83 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Card, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import './Quiz.css';
 
-const Quiz = () => {
+function Quiz() {
     const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
+    const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [userAnswers, setUserAnswers] = useState([]);
+    const [loading, setLoading] = useState(true); // Loading state
+
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get("http://localhost:8080/api/questions")
-            .then(response => setQuestions(response.data))
-            .catch(error => console.error("Veri çekme hatası:", error));
+        fetchQuestions();
     }, []);
 
-    const handleAnswer = (selectedAnswer) => {
-        const currentQuestion = questions[currentQuestionIndex];
-        setUserAnswers([...userAnswers, selectedAnswer]);
-
-        if (selectedAnswer === currentQuestion.correctAnswer) {
-            setScore(score + 1);
-        }
-
-        const nextIndex = currentQuestionIndex + 1;
-        if (nextIndex < questions.length) {
-            setCurrentQuestionIndex(nextIndex);
-        } else {
-            navigate("/review", {
-                state: {
-                    questions,
-                    userAnswers: [...userAnswers, selectedAnswer],
-                    score,
-                    totalQuestions: questions.length
-                }
-            });
-
-        }
+    const fetchQuestions = () => {
+        setLoading(true); // Set loading to true before fetching
+        axios.get("http://localhost:8080/api/questions")
+            .then((response) => {
+                setQuestions(response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching questions:", error);
+                // Handle error, e.g., display a message to the user
+            })
+            .finally(() => setLoading(false)); // Set loading to false after fetch, regardless of success/failure
     };
 
-    if (questions.length === 0) {
-        return <h3>Yükleniyor...</h3>;
-    }
+
+    const handleAnswer = (answer) => {
+        const currentQuestion = questions[currentQuestionIndex]; // Store for clarity
+        const isCorrect = answer === currentQuestion.correctAnswer;
+        if (isCorrect) setScore(score + 1);
+
+        setUserAnswers([
+            ...userAnswers,
+            { question: currentQuestion.questionText, selected: answer, correct: isCorrect, correctAnswer: currentQuestion.correctAnswer },
+        ]);
+
+        setSelectedAnswer(answer);
+        setTimeout(() => {
+            if (currentQuestionIndex + 1 < questions.length) {
+                setCurrentQuestionIndex(currentQuestionIndex + 1);
+                setSelectedAnswer(null);
+            } else {
+                navigate("/review", { state: { score, userAnswers } });
+            }
+        }, 1000);
+    };
+
+    if (loading) return <div className="loading-screen"><h2>Yükleniyor...</h2></div>; // Display loading screen
+
+    if (questions.length === 0) return <h2>Sorular Yüklenemedi.</h2>; // Handle case where questions couldn't be fetched
+
+    const currentQuestion = questions[currentQuestionIndex]; // Store for easier access
 
     return (
-        <div className="container mt-4">
-            <h2>Quiz Uygulaması</h2>
-            <Card>
-                <Card.Body>
-                    <Card.Title>{questions[currentQuestionIndex].questionText}</Card.Title>
-                    <div className="d-flex flex-column">
-                        {["optionA", "optionB", "optionC", "optionD"].map((option, idx) => (
-                            <Button
-                                key={idx}
-                                variant="outline-primary"
-                                className="mb-2"
-                                onClick={() => handleAnswer(questions[currentQuestionIndex][option])}
-                            >
-                                {questions[currentQuestionIndex][option]}
-                            </Button>
-                        ))}
-                    </div>
-                </Card.Body>
-            </Card>
+        <div className="quiz-container">
+            <h3 className="question-title">{currentQuestion.questionText}</h3>
+            <div className="options-container">
+                {["optionA", "optionB", "optionC", "optionD"].map((opt) => (
+                    <button
+                        key={opt}
+                        className={`option-button ${selectedAnswer === currentQuestion[opt] ? (currentQuestion[opt] === currentQuestion.correctAnswer ? "correct" : "incorrect") : ""} m-2`}
+                        onClick={() => handleAnswer(currentQuestion[opt])}
+                        disabled={selectedAnswer !== null} // Disable buttons after an answer is selected
+                    >
+                        {currentQuestion[opt]}
+                    </button>
+                ))}
+            </div>
+            <div className="question-counter">
+                Soru {currentQuestionIndex + 1} / {questions.length}
+            </div>
         </div>
     );
-};
+}
 
 export default Quiz;

@@ -1,0 +1,93 @@
+/* Quiz.css */
+.quiz-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center horizontally */
+    justify-content: center;
+    /* Center vertically */
+    min-height: 100vh;
+    /* Ensure full viewport height */
+    padding: 20px;
+    background-color: #f4f4f4;
+    /* Light background color */
+    font-family: sans-serif;
+    /* Use a modern font */
+}
+
+.question-title {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+    /* Center the question text */
+}
+
+.options-container {
+    display: grid;
+    /* Use grid for layout */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* Responsive columns */
+    gap: 10px;
+    /* Spacing between buttons */
+    width: 100%;
+    /* Occupy full width */
+    max-width: 600px;
+    /* Limit max width */
+}
+
+
+.option-button {
+    padding: 15px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    /* Smooth transition */
+    background-color: #fff;
+    /* White button background */
+    color: #333;
+    /* Dark text color */
+    border: 1px solid #ccc;
+    /* Add a subtle border */
+}
+
+.option-button:hover {
+    background-color: #eee;
+    /* Light gray on hover */
+}
+
+.correct {
+    background-color: #4CAF50;
+    /* Green for correct answer */
+    color: white;
+}
+
+.incorrect {
+    background-color: #FF0000;
+    /* Red for incorrect answer */
+    color: white;
+}
+
+.loading-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
+    position: fixed;
+    /* Cover the entire screen */
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    /* Ensure it's on top */
+}
+
+.question-counter {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #666;
+    /* Grayish text color */
+}
